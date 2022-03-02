@@ -1,4 +1,9 @@
 <?php
+    if(!isset($_GET['id'])){
+        die("You cannot Edit");
+    }
+    $cid=$_GET['id'];
+
     session_start();
     if(!isset($_SESSION['login']) || !$_SESSION['login']==1){
     header('Location:login.php');
@@ -9,8 +14,13 @@
     $result = mysqli_query($conn,$query);
     $data = mysqli_fetch_assoc($result);
 
-    $categoryQuery = "SELECT * FROM category";
+    $categoryQuery = "SELECT * FROM category WHERE id='$cid'";
     $categoryResult = mysqli_query($conn,$categoryQuery);
+    if(mysqli_num_rows($categoryResult)==0){
+        die("No record found with this id");
+    }else{
+        $row=mysqli_fetch_assoc($categoryResult);
+    }
 
 
 ?>
@@ -31,40 +41,17 @@
                 <form method="POST" action="db/add-category.php">
                     <label>Category title</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" name="category">
+                        <input type="text" value="<?php echo $row['title'];?>" class="form-control" name="category">
                     </div>
                     <br/>
                      <div class="input-group">
-                        <input type="text" placeholder="fa icon class" class="form-control" name="iconclass">
+                        <input type="text" value="<?php echo $row['iconImage'];?>"placeholder="fa icon class" class="form-control" name="iconclass">
                     </div>
                     <br/>
                     <button type="submit" class="btn btn-dark">Save</button>
                 </form>
                <?php include('include/message.php'); ?>
 
-        <div class="row justify-content-md-center"></div>
-        <?php
-          if(mysqli_num_rows($categoryResult)==0){
-            echo "<h3>No Category found</h3>";
-           }else{ ?>
-
-           <table class="table">
-             <thead>
-               <th>Title</th>
-               <th>Action</th>
-           </thead>
-           <tbody>
-             <?php while($row=mysqli_fetch_assoc($categoryResult)) { ?>        
-           <tr>            
-             <td><?php echo $row['title'];?></td>
-             <td> <a href="#" onclick="deleteConfirmation(<?php echo $row['id'];?>);"><i class="fas fa-trash" style="color:red;"></i> </a>| <a href="edit-category.php?id=<?php echo $row['id']; ?>"> <i class="fas fa-edit"></i></a></td>
-           </tr>
-           <?php } ?>
-             </tbody>
-             </table>
-           
-          <?php }
-          ?>
       </div>
     </div>
   </div>
@@ -72,27 +59,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/82f2c2ba8a.js" crossorigin="anonymous"></script>
 <script src="js/bootbox.min.js"></script>
-<script>
-  function deleteConfirmation(id){
-    bootbox.confirm({
-    message: "Are you Sure?",
-    buttons: {
-        confirm: {
-            label: 'Yes',
-            className: 'btn-success'
-        },
-        cancel: {
-            label: 'No',
-            className: 'btn-danger'
-        }
-    },
-    callback: function (result) {
-    if(result){
-      window.location = 'db/delete-category.php?id='+id;
-    }
-    }
-});
-  }
-</script>
+
 </body>
 </html>
